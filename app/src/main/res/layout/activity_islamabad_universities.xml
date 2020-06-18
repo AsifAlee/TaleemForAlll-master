@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.shafiq.asifa.taleemforalll.IslamabadUniversitiesAct">
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/isbUniList"
+        android:layout_below="@+id/textView3"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="29dp" />
+
+    <TextView
+        android:text="The following are the universities in the Islamabad Region."
+        android:layout_width="wrap_content"
+        android:fontFamily="sans-serif-condensed"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+
+        android:gravity="center"
+        android:layout_marginTop="18dp"
+        android:id="@+id/textView3"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+    <com.google.android.gms.ads.AdView
+
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textView3"
+        ads:adSize="BANNER"
+        android:id="@+id/adViewIsb"
+        ads:adUnitId="@string/isb_add_unit"
+
+
+
+        ></com.google.android.gms.ads.AdView>
+
+</RelativeLayout>

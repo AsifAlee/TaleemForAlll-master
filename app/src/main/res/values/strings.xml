@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">TaleemForAlll</string>
+
+
+    <string name="app_id">ca-app-pub-5320455949360467~8820691041</string>
+    <string name="unis_ad_unitId">ca-app-pub-5320455949360467/6100418113</string>
+    <string name="isb_add_unit">ca-app-pub-5320455949360467/4759416280</string>
+    <string name="rwp_add_unit">ca-app-pub-5320455949360467/7194007932</string>
+    <string name="test_ad_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="test_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="about_ad_unit_id">ca-app-pub-5320455949360467/4567844595</string>
+    <string name="title_activity_islamabad_universities">IslamabadUniversitiesActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
