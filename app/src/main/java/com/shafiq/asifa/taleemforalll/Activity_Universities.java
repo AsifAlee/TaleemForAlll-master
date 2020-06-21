@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -160,11 +161,19 @@ public class Activity_Universities extends AppCompatActivity {
 //        Log.d(TAG, "status : "+user.getUid());
 
         assert user != null;
-        reference = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
-        HashMap<String,Object> hashMap = new HashMap<>();
-        hashMap.put("status",status);
-        reference.updateChildren(hashMap);
 
+        if (user != null) {
+
+            reference = FirebaseDatabase.getInstance().getReference();
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("status", status);
+            reference.child("Users").child(user.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(Activity_Universities.this, "Status Updated Successfully.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     @Override

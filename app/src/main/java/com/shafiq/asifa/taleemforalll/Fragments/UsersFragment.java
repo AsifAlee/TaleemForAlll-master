@@ -65,10 +65,10 @@ public class UsersFragment extends Fragment {
                         User user = snapshot.getValue(User.class);
                         mUsers.add(user);
 
+                        userAdapter = new UserAdapter(getContext(), mUsers, false);
+                        recyclerView.setAdapter(userAdapter);
                     }
 
-                    userAdapter = new UserAdapter(getContext(), mUsers, false);
-                    recyclerView.setAdapter(userAdapter);
 
                     Log.d(TAG, "onDataChange2: " + mUsers.size());
                 }
@@ -126,13 +126,13 @@ public class UsersFragment extends Fragment {
 
                     if(!user.getId().equals(firebaseUser.getUid())){
                         mUsers.add(user);
+                        userAdapter = new UserAdapter(getContext(),mUsers,false);
+                        recyclerView.setAdapter(userAdapter);
                     }
 
 
                 }
 
-                userAdapter = new UserAdapter(getContext(),mUsers,false);
-                recyclerView.setAdapter(userAdapter);
 
             }
 
