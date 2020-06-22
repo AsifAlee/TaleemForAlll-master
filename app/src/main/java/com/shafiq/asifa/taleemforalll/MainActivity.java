@@ -82,16 +82,11 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
         if(firebaseAuth.getCurrentUser() != null){
             if(firebaseAuth.getCurrentUser().getUid().equals(adminId)){
-
-                Intent intent = new Intent(MainActivity.this,AdminActivity.class);
-                startActivity(intent);
-
+                startActivity(new Intent(MainActivity.this,AdminActivity.class));
             }
-
-
-        }
-        if(firebaseAuth.getCurrentUser() != null && firebaseAuth.getCurrentUser().getUid() != adminId ){
-            startActivity(new Intent(MainActivity.this,Activity_Universities.class));
+            else {
+                startActivity(new Intent(MainActivity.this,Activity_Universities.class));
+            }
         }
 
 
@@ -108,7 +103,6 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                     // User is signed out
                     Log.d("TAG", "onAuthStateChanged:signed_out");
                 }
-
             }
         };*/
 

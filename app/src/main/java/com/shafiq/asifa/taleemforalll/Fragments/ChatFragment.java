@@ -63,13 +63,13 @@ public class ChatFragment extends Fragment {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-              usersInChat.clear();
-              for(DataSnapshot snapshot:dataSnapshot.getChildren()){
+                usersInChat.clear();
+                for(DataSnapshot snapshot:dataSnapshot.getChildren()){
 
-                  ChatList chatList = snapshot.getValue(ChatList.class);
-                  usersInChat.add(chatList);
+                    ChatList chatList = snapshot.getValue(ChatList.class);
+                    usersInChat.add(chatList);
 
-              }
+                }
 
                 ReadChatList();
                 Log.d(TAG, "onDataChange: usersInChat:"+usersInChat.size());
@@ -102,15 +102,12 @@ public class ChatFragment extends Fragment {
                     for(ChatList chatList:usersInChat) {
                         if (user.getId().equals(chatList.getId())) {
                             mUsers.add(user);
+                            userAdapter = new UserAdapter(getContext(),mUsers,true);
+                            recyclerView.setAdapter(userAdapter);
                         }
-
-
                     }
 
-
                 }
-                userAdapter = new UserAdapter(getContext(),mUsers,true);
-                recyclerView.setAdapter(userAdapter);
             }
 
             @Override

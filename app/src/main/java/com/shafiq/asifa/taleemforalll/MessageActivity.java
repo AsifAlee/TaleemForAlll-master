@@ -15,6 +15,7 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -78,13 +79,14 @@ public class MessageActivity extends AppCompatActivity {
         send_btn = findViewById(R.id.btn_send);
         recyclerView = findViewById(R.id.recyler_view);
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        firebaseDatabase = FirebaseDatabase.getInstance();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
         toolbarTv = findViewById(R.id.username);
         intent = getIntent();
 
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference();
 
         currentUserIdToChat = intent.getStringExtra("currentUserIdToChat");
         currentUserName = intent.getStringExtra("currentUserName");
@@ -124,7 +126,6 @@ public class MessageActivity extends AppCompatActivity {
         send_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                notify = true;
                 String msg = text_send.getText().toString().trim();
 
                 if (!msg.equals("")) {
@@ -170,10 +171,6 @@ public class MessageActivity extends AppCompatActivity {
 
     private void SendMessage(String sender, final String reciever, final String msg) {
 
-        databaseReference = firebaseDatabase.getReference();
-        Log.d("ref", String.valueOf(databaseReference));
-
-
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("sender", sender);
         hashMap.put("reciever", reciever);
@@ -185,45 +182,49 @@ public class MessageActivity extends AppCompatActivity {
 
         ReadMessage(sender, reciever);
 
-        final DatabaseReference chatlistRef = FirebaseDatabase.getInstance().getReference("Chatlist")
-                .child(firebaseUser.getUid())
-                .child(currentUserIdToChat);
+        Log.e("ref", String.valueOf(databaseReference));
 
-        chatlistRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+        databaseReference.child("Chatlist").child(firebaseUser.getUid()).child(currentUserIdToChat)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            dataSnapshot.child("id").getRef().setValue(currentUserIdToChat);
+                            notify = true;
+                            Log.e(TAG, "onDATAChange inside");
+                            initNotification(msg);
+                        }
+                        else
+                            Toast.makeText(MessageActivity.this, "Chat does not exists", Toast.LENGTH_SHORT).show();
+                    }
 
-                if (!dataSnapshot.exists()) {
-                    chatlistRef.child("id").setValue(currentUserIdToChat);
-                }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Toast.makeText(MessageActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Error: "+databaseError.getMessage());
+                    }
+                });
+    }
 
-            }
+    private void initNotification(final String msg) {
+        Log.e(TAG, "inside initNotification");
+        databaseReference.child("Users").child(fuser.getUid())
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        User user = dataSnapshot.getValue(User.class);
+                        if(notify){
+                            sendNotification(reciever,user.getUsername(),msg);
+                            notify = false;
+                        }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                    }
 
-            }
-        });
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-        final String msges = msg;
-        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(fuser.getUid());
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
-                if(notify){
-                    sendNotification(reciever,user.getUsername(),msg);
-                }
-
-                notify = false;
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
+                    }
+                });
 
     }
 
@@ -242,22 +243,50 @@ public class MessageActivity extends AppCompatActivity {
                 mChat.clear();
 
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Chat chat = snapshot.getValue(Chat.class);
 
-                    assert chat != null;
-                    if ((chat.getSender().equals(sender) && chat.getReciever().equals(reciever))
-                            || (chat.getSender().equals(reciever) && chat.getReciever().equals(sender))) {
-                        mChat.add(chat);
+                    if (snapshot.exists()) {
+//                        Chat chat = snapshot.getValue(Chat.class);
+
+                        Log.e(TAG, "keys: "+snapshot.getKey());
+                        Log.e(TAG, "string: "+snapshot.toString());
+
+                        Chat chat = new Chat();
+
+                        chat.setMessage(snapshot.child("message").getValue().toString());
+                        chat.setSeen(snapshot.child("isSeen").getValue().toString());
+                        chat.setReciever(snapshot.child("reciever").getValue().toString());
+                        chat.setSender(snapshot.child("sender").getValue().toString());
+
+                        assert chat != null;
+
+                        if (chat != null) {
+
+                            if (chat.getSender() != null && !sender.isEmpty()) {
+
+                                if ((chat.getSender().equalsIgnoreCase(sender)
+                                        && chat.getReciever().equalsIgnoreCase(reciever))
+                                        ||
+                                        (chat.getSender().equalsIgnoreCase(reciever)
+                                                && chat.getReciever().equalsIgnoreCase(sender))) {
+
+                                    mChat.add(chat);
+                                    MessageAdapter messageAdapter = new MessageAdapter(MessageActivity.this, mChat);
+                                    recyclerView.setAdapter(messageAdapter);
+
+                                }
+                            } else {
+                                if (chat.getSender() == null)
+                                    Log.e(TAG, "chat.getSender is null");
+                                else
+                                    Log.e(TAG, "sender is empty");
+                            }
+                        } else
+                            Log.e(TAG, "Chat is null");
+
+                        Log.e(TAG, "onDataChange: " + mChat.size());
+
                     }
-
-
                 }
-
-                Log.d(TAG, "onDataChange: " + mChat.size());
-                MessageAdapter messageAdapter = new MessageAdapter(MessageActivity.this, mChat);
-
-                recyclerView.setAdapter(messageAdapter);
-
 
             }
 
@@ -272,10 +301,17 @@ public class MessageActivity extends AppCompatActivity {
 
     public void status(String status) {
 
-        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
-        HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("status", status);
-        databaseReference.updateChildren(hashMap);
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+        HashMap<String,Object> hashMap = new HashMap<>();
+        hashMap.put("status",status);
+
+        databaseReference.child("Users").child(firebaseUser.getUid()).updateChildren(hashMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(MessageActivity.this, "Status Updated Successfully.", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
     }
 
@@ -294,6 +330,8 @@ public class MessageActivity extends AppCompatActivity {
 
     private void sendNotification(String receiever,final String username,final String message){
 
+        Log.e(TAG, "Send Notification inside");
+
         DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
         Query query = tokens.orderByKey().equalTo(receiever);
         query.addValueEventListener(new ValueEventListener() {
@@ -303,6 +341,8 @@ public class MessageActivity extends AppCompatActivity {
                     Token token = snapshot.getValue(Token.class);
                     Data data = new Data(fuser.getUid(),R.mipmap.ic_launcher,username+": "+message,"New Message",userId);
 
+                    Log.e(TAG, "inside DATA change");
+
                     Sender sender = new Sender(data,token.getToken());
                     apiService.sendNotification(sender)
                             .enqueue(new Callback<MyResponse>() {
@@ -311,14 +351,19 @@ public class MessageActivity extends AppCompatActivity {
                                     if(response.code() ==200){
                                         if(response.body().success != 1){
                                             Toast.makeText(MessageActivity.this,"Failed",Toast.LENGTH_SHORT).show();
+                                            Log.e(TAG, "Notification not send");
                                         }
+                                        else
+                                            Log.e(TAG, "Notification send");
                                     }
+                                    else
+                                        Log.e(TAG, "response message: "+response.message());
 
                                 }
 
                                 @Override
                                 public void onFailure(Call<MyResponse> call, Throwable t) {
-
+                                    Log.e(TAG, "onFailure: "+t.getMessage());
                                 }
                             });
                 }

@@ -58,7 +58,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         final User user =  mUser.get(i);
         Log.d(TAG, "onBindViewHolder:  "+user.getUserEmail());
         Log.d(TAG, "onBindViewHolder: this is onBindViewHolder!");
-        
+
         viewHolder.userName.setText(user.getUsername());
 
 
@@ -107,12 +107,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
         Log.d(TAG, "getItemCount: this is getItemCount = "+mUser.size());
         return mUser.size();
-        
+
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        
+
         TextView userName;
         TextView last_msg;
 
@@ -142,11 +142,20 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 for(DataSnapshot snapshot:dataSnapshot.getChildren()){
 
                     Chat chat = snapshot.getValue(Chat.class);
-                    if(chat.getReciever().equals(firebaseUser.getUid()) && chat.getSender().equals(userid)
-                      || chat.getReciever().equals(userid) && chat.getSender().equals(firebaseUser.getUid()))
-                    {
-                        theLastMessage = chat.getMessage();
+
+                    if (chat.getReciever() != null && !firebaseUser.getUid().isEmpty()) {
+
+                        if((chat.getReciever().equalsIgnoreCase(firebaseUser.getUid())
+                                && chat.getSender().equalsIgnoreCase(userid))
+                                ||
+                                (chat.getReciever().equalsIgnoreCase(userid)
+                                        && chat.getSender().equalsIgnoreCase(firebaseUser.getUid())))
+                        {
+                            theLastMessage = chat.getMessage();
+                        }
+
                     }
+
                 }
 
                 switch (theLastMessage){
@@ -154,9 +163,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                         last_msg.setText("No message");
                         break;
 
-                        default:
-                            last_msg.setText(theLastMessage);
-                            break;
+                    default:
+                        last_msg.setText(theLastMessage);
+                        break;
                 }
 
                 theLastMessage = "default";
