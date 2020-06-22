@@ -102,12 +102,15 @@ public class ChatFragment extends Fragment {
                     for(ChatList chatList:usersInChat) {
                         if (user.getId().equals(chatList.getId())) {
                             mUsers.add(user);
-                            userAdapter = new UserAdapter(getContext(),mUsers,true);
-                            recyclerView.setAdapter(userAdapter);
                         }
+
+
                     }
 
+
                 }
+                userAdapter = new UserAdapter(getContext(),mUsers,true);
+                recyclerView.setAdapter(userAdapter);
             }
 
             @Override

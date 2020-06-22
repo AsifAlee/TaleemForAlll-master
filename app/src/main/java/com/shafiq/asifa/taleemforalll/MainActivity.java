@@ -82,11 +82,16 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
         if(firebaseAuth.getCurrentUser() != null){
             if(firebaseAuth.getCurrentUser().getUid().equals(adminId)){
-                startActivity(new Intent(MainActivity.this,AdminActivity.class));
+
+                Intent intent = new Intent(MainActivity.this,AdminActivity.class);
+                startActivity(intent);
+
             }
-            else {
-                startActivity(new Intent(MainActivity.this,Activity_Universities.class));
-            }
+
+
+        }
+        if(firebaseAuth.getCurrentUser() != null && firebaseAuth.getCurrentUser().getUid() != adminId ){
+            startActivity(new Intent(MainActivity.this,Activity_Universities.class));
         }
 
 

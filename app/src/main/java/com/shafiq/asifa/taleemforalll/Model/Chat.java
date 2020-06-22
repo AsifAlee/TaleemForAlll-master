@@ -46,10 +46,7 @@ public class Chat {
         return isSeen;
     }
 
-    public void setSeen(String seen) {
-        if (seen.equalsIgnoreCase("true"))
-            isSeen = true;
-        else
-            isSeen = false;
+    public void setSeen(boolean seen) {
+        isSeen = seen;
     }
 }
